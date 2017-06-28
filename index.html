@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>getVertexOfCubicBezierCurve</title>
+</head>
+<body>
+    <form id="form">
+        <label for="x0">起始端点x0:</label><input id="x0" name="x0"><br/>
+        <label for="y0">起始端点y0:</label><input id="y0" name="y0"><br/>
+        <label for="x1">控制点x1:</label><input id="x1" name="x1"><br/>
+        <label for="y1">控制点y1:</label><input id="y1" name="y1"><br/>
+        <label for="x2">控制点x2:</label><input id="x2" name="x2"><br/>
+        <label for="y2">控制点y2:</label><input id="y2" name="y2"><br/>
+        <label for="x">结束端点x:</label><input id="x" name="x"><br/>
+        <label for="y">结束端点y:</label><input id="y" name="y"><br/>
+        <input type="reset"><input type="submit">
+    </form>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" style="width: 100%;height:1500px">
+        <path id="path" fill="transparent" stroke="green"/>
+        <line id="guide1" stroke="gray" stroke-dasharray="1 3" />
+        <line id="guide2" stroke="gray" stroke-dasharray="1 3" />
+    </svg>
+    <script src="getVertexOfCubicBezierCurve.js"></script>
+    <script>
+        var xmlns="http://www.w3.org/2000/svg",
+            form=document.querySelector("#form"),
+             svg=document.querySelector("#svg"),
+             path=document.querySelector("#path"),
+             width=600;
+        fillForm();
+        function fillForm(){
+            [].filter.call(form.elements,function(element){
+                return element.name;
+            }).forEach(function(input){
+                input.value=width*Math.random();
+            })
+        }
+        form.addEventListener("reset",function(){
+            setTimeout(function(){
+                fillForm();
+            },16)
+        });
+        form.addEventListener("submit",function(e){
+            e.preventDefault();
+            var x0=form.x0.value,
+                y0=form.y0.value,
+                x1=form.x1.value,
+                y1=form.y1.value,
+                x2=form.x2.value,
+                y2=form.y2.value,
+                x=form.x.value,
+                y=form.y.value;
+            var texts=document.querySelectorAll("text"),
+                 circles=document.querySelectorAll("circle"),
+                 lines=document.querySelectorAll("line");
+            var points=getTrangleOfBezierCurve(x0,y0,x1,y1,x2,y2,x,y);
+            [].forEach.call(lines,function(line){
+                svg.removeChild(line);
+            });
+            [].forEach.call(texts,function(text){
+                svg.removeChild(text);
+            });
+            [].forEach.call(circles,function(circle){
+                svg.removeChild(circle);
+            });
+            path.setAttribute("d","M"+x0+" "+y0+"C"+x1+" "+y1+" "+x2+" "+y2+" "+x+" "+y);
+            generateLine(x0,y0,x1,y1);
+            generateLine(x2,y2,x,y);
+            generate(x0, y0);
+            generate(x1,y1);
+            generate(x2,y2);
+            generate(x,y);
+            points.forEach(function(point){
+                generate(point[0],point[1]);
+            });
+        });
+        function generateLine(x1,y1,x2,y2){
+            var line=document.createElementNS(xmlns,"line");
+            line.setAttribute("stroke","gray");
+            line.setAttribute("stroke-dasharray","1 3");
+            line.setAttribute("x1",x1);
+            line.setAttribute("y1",y1);
+            line.setAttribute("x2",x2);
+            line.setAttribute("y2",y2);
+            svg.appendChild(line);
+        }
+        function generate(x,y){
+            var circle=document.createElementNS(xmlns,"circle"),
+                 text=document.createElementNS(xmlns,"text");
+            circle.setAttribute("r",2);
+            circle.setAttribute("fill","red");
+            circle.setAttribute("cx",x);
+            circle.setAttribute("cy",y);
+            text.setAttribute("x",x);
+            text.setAttribute("y",y);
+            text.setAttribute("fill","red");
+            text.setAttribute("dx","5");
+            text.setAttribute("dy","5");
+            text.innerHTML="("+x+","+y+")";
+            svg.appendChild(circle);
+            svg.appendChild(text);
+        }
+    </script>
+</body>
+</html>
